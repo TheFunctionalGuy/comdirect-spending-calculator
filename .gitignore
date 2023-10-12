@@ -1,0 +1,7 @@
+# Generated folders
+zig-cache/
+zig-out/
+
+# Sensitive data
+input/
+filter/
