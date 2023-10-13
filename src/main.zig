@@ -9,11 +9,11 @@ const Allocator = mem.Allocator;
 
 // Define clap parameters and parsers
 const PARAMS = clap.parseParamsComptime(
-    \\-h, --help            Display this help and exit.
-    \\-i, --include <FILE>  An optional filter which specifies which values to take into account
-    \\-e, --exclude <FILE>  An optional filter which specifies which values NOT to take into account after applying the including filter
-    \\<FILE>                First statement
-    \\<FILE>                Second statement
+    \\-h, --help               Display this help and exit.
+    \\-i, --include <FILE>...  Optional filter(s) which specify which values to take into account
+    \\-e, --exclude <FILE>...  Optional filter(s) which specify which values NOT to take into account after applying the including filter
+    \\<FILE>                   First statement
+    \\<FILE>                   Second statement
     \\
 );
 const PARSERS = .{
