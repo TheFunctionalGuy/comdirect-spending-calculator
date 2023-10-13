@@ -10,8 +10,8 @@ const Allocator = mem.Allocator;
 // Define clap parameters and parsers
 const PARAMS = clap.parseParamsComptime(
     \\-h, --help               Display this help and exit.
-    \\-i, --include <FILE>...  Optional filter(s) which specify which values to take into account
-    \\-e, --exclude <FILE>...  Optional filter(s) which specify which values NOT to take into account after applying the including filter
+    \\-i, --include <FILE>...  Optional filters which specify which values to take into account
+    \\-e, --exclude <FILE>...  Optional filters which specify which values NOT to take into account after applying the including filter
     \\<FILE>                   First statement
     \\<FILE>                   Second statement
     \\
@@ -23,6 +23,11 @@ const PARSERS = .{
 pub fn main() !void {
     const stdout = std.io.getStdOut().writer();
     const stderr = std.io.getStdErr().writer();
+
+    // Warn about debug mode
+    if (util.debug_mode) {
+        std.debug.print("Warning: This is a DEBUG build!\n", .{});
+    }
 
     // Parse parameters and handle errors
     var diag = clap.Diagnostic{};
@@ -43,6 +48,7 @@ pub fn main() !void {
         return clap.help(stderr, clap.Help, &PARAMS, .{});
     }
 
+    // TODO: Implement debug allocator swapping
     // Get allocator
     var arena = std.heap.ArenaAllocator.init(std.heap.page_allocator);
     defer arena.deinit();

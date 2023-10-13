@@ -1,7 +1,13 @@
 const std = @import("std");
+const builtin = @import("builtin");
 const mem = std.mem;
 
 const Allocator = mem.Allocator;
+
+pub const debug_mode = switch (builtin.mode) {
+    .Debug => true,
+    else => false,
+};
 
 pub fn readFileToArrayAlloc(allocator: Allocator, path: []const u8) ![]u8 {
     var file = try std.fs.cwd().openFile(path, .{});
