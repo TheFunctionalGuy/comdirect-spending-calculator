@@ -32,6 +32,37 @@ pub fn deinit(self: Self) void {
     self.exclude.deinit();
 }
 
+pub fn format(self: Self, comptime fmt: []const u8, options: std.fmt.FormatOptions, writer: anytype) !void {
+    if (fmt.len != 0) {
+        std.fmt.invalidFmtError(fmt, self);
+    }
+    _ = options;
+
+    // Print including filters
+    try writer.writeAll("Including filters");
+    if (self.include.items.len == 0) {
+        try writer.writeAll(" are empty!\n");
+    } else {
+        try writer.writeAll(":\n");
+
+        for (self.include.items) |filter| {
+            try writer.print("{s}\n", .{filter});
+        }
+    }
+
+    // Print excluding filters
+    try writer.writeAll("Excluding filters");
+    if (self.exclude.items.len == 0) {
+        try writer.writeAll(" are empty!\n");
+    } else {
+        try writer.writeAll(":\n");
+
+        for (self.exclude.items) |filter| {
+            try writer.print("{s}\n", .{filter});
+        }
+    }
+}
+
 fn readFilterFromPathAlloc(allocator: Allocator, file_paths: []const []const u8) !StringArrayList {
     var filters = StringArrayList.init(allocator);
 
