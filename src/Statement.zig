@@ -79,7 +79,7 @@ pub fn getFilteredSum(self: Self, filters: Filters) i64 {
         var selected = false;
 
         // Look for includes
-        for (filters.include.items) |include_filter| {
+        for (filters.include) |include_filter| {
             if (mem.startsWith(u8, entry.description, include_filter)) {
                 selected = true;
                 break;
@@ -87,7 +87,7 @@ pub fn getFilteredSum(self: Self, filters: Filters) i64 {
         }
 
         // Look for excludes
-        for (filters.exclude.items) |exclude_filter| {
+        for (filters.exclude) |exclude_filter| {
             if (mem.startsWith(u8, entry.description, exclude_filter)) {
                 selected = false;
                 break;

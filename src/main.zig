@@ -71,7 +71,7 @@ pub fn main() !void {
     // Read statements
     const first_statement_path = res.positionals[0];
 
-    const first_statement = try Statement.init(allocator, first_statement_path);
+    var first_statement = try Statement.init(allocator, first_statement_path);
     defer first_statement.deinit();
 
     const first_sum = first_statement.getFilteredSum(filters);
@@ -80,7 +80,7 @@ pub fn main() !void {
         if (res.positionals.len > 1) {
             const second_statement_path = res.positionals[1];
 
-            const second_statement = try Statement.init(allocator, second_statement_path);
+            var second_statement = try Statement.init(allocator, second_statement_path);
             defer second_statement.deinit();
 
             const second_sum = second_statement.getFilteredSum(filters);

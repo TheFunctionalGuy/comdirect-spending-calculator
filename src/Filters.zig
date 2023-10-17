@@ -6,8 +6,8 @@ const Allocator = std.mem.Allocator;
 const StringArrayList = std.ArrayList([]const u8);
 
 allocator: Allocator,
-include: StringArrayList,
-exclude: StringArrayList,
+include: []const []const u8,
+exclude: []const []const u8,
 
 const Self = @This();
 
@@ -21,15 +21,15 @@ pub fn init(allocator: Allocator, include_paths: []const []const u8, exclude_pat
 
 pub fn deinit(self: Self) void {
     // Free all elements and then list itself
-    for (self.include.items) |filter| {
+    for (self.include) |filter| {
         self.allocator.free(filter);
     }
-    self.include.deinit();
+    self.allocator.free(self.include);
 
-    for (self.exclude.items) |filter| {
+    for (self.exclude) |filter| {
         self.allocator.free(filter);
     }
-    self.exclude.deinit();
+    self.allocator.free(self.exclude);
 }
 
 pub fn format(self: Self, comptime fmt: []const u8, options: std.fmt.FormatOptions, writer: anytype) !void {
@@ -63,12 +63,22 @@ pub fn format(self: Self, comptime fmt: []const u8, options: std.fmt.FormatOptio
     }
 }
 
-fn readFilterFromPathAlloc(allocator: Allocator, file_paths: []const []const u8) !StringArrayList {
+// FIXME: Handle cyclic imports
+fn readFilterFromPathAlloc(allocator: Allocator, file_paths: []const []const u8) ![]const []const u8 {
     var filters = StringArrayList.init(allocator);
+    defer filters.deinit();
 
-    for (file_paths) |path| {
-        const file_buf = try util.readFileToArrayAlloc(allocator, path);
+    var path_queue = std.SegmentedList([]const u8, 0){};
+    defer path_queue.deinit(allocator);
+
+    try path_queue.appendSlice(allocator, file_paths);
+    var paths = path_queue.constIterator(0);
+
+    while (paths.next()) |path| {
+        const file_buf = try util.readFileToArrayAlloc(allocator, path.*);
         defer allocator.free(file_buf);
+
+        const containing_directory = std.fs.path.dirname(path.*);
 
         var tokens = mem.tokenizeScalar(u8, file_buf, '\n');
 
@@ -81,6 +91,12 @@ fn readFilterFromPathAlloc(allocator: Allocator, file_paths: []const []const u8)
             if (filter.len >= 2 and mem.eql(u8, filter[0..2], "//")) {
                 continue;
             }
+            // Handle filter imports
+            if (filter.len > 1 and filter[0] == '@') {
+                const uncombined_paths = [_][]const u8{ containing_directory.?, filter[1..] };
+                try path_queue.append(allocator, try std.fs.path.join(allocator, &uncombined_paths));
+                continue;
+            }
 
             var filter_buf = try allocator.alloc(u8, filter.len);
             @memcpy(filter_buf, filter);
@@ -89,5 +105,11 @@ fn readFilterFromPathAlloc(allocator: Allocator, file_paths: []const []const u8)
         }
     }
 
-    return filters;
+    // Free paths that were imported via @
+    var added_paths = path_queue.constIterator(file_paths.len);
+    while (added_paths.next()) |path| {
+        allocator.free(path.*);
+    }
+
+    return filters.toOwnedSlice();
 }
