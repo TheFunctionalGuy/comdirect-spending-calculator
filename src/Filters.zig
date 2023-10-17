@@ -63,7 +63,6 @@ pub fn format(self: Self, comptime fmt: []const u8, options: std.fmt.FormatOptio
     }
 }
 
-// FIXME: Handle cyclic imports
 fn readFilterFromPathAlloc(allocator: Allocator, file_paths: []const []const u8) ![]const []const u8 {
     var filters = StringArrayList.init(allocator);
     defer filters.deinit();
@@ -74,7 +73,16 @@ fn readFilterFromPathAlloc(allocator: Allocator, file_paths: []const []const u8)
     try path_queue.appendSlice(allocator, file_paths);
     var paths = path_queue.constIterator(0);
 
+    // Keep track of files which have been parsed already
+    var parsed_paths = std.StringHashMap(void).init(allocator);
+    defer parsed_paths.deinit();
+
     while (paths.next()) |path| {
+        // Skip files that have been parsed already
+        if (parsed_paths.contains(path.*)) {
+            continue;
+        }
+
         const file_buf = try util.readFileToArrayAlloc(allocator, path.*);
         defer allocator.free(file_buf);
 
@@ -103,6 +111,8 @@ fn readFilterFromPathAlloc(allocator: Allocator, file_paths: []const []const u8)
 
             try filters.append(filter_buf);
         }
+
+        try parsed_paths.put(path.*, {});
     }
 
     // Free paths that were imported via @
