@@ -1,4 +1,5 @@
 const std = @import("std");
+const build_options = @import("build_options");
 const util = @import("util");
 const clap = @import("clap");
 const mem = std.mem;
@@ -48,12 +49,20 @@ pub fn main() !void {
         return clap.help(stderr, clap.Help, &PARAMS, .{});
     }
 
-    // TODO: Implement debug allocator swapping
     // Get allocator
-    var arena = std.heap.ArenaAllocator.init(std.heap.page_allocator);
-    defer arena.deinit();
+    var allocator_state = if (build_options.use_gpa)
+        std.heap.GeneralPurposeAllocator(.{}){}
+    else
+        std.heap.ArenaAllocator.init(std.heap.page_allocator);
 
-    const allocator = arena.allocator();
+    defer {
+        if (build_options.use_gpa)
+            std.debug.assert(allocator_state.deinit() == .ok)
+        else
+            allocator_state.deinit();
+    }
+
+    const allocator = allocator_state.allocator();
 
     // Read filters
     const filters = try Filters.init(allocator, res.args.include, res.args.exclude);

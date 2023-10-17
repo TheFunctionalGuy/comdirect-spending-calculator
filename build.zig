@@ -6,6 +6,9 @@ pub fn build(b: *std.Build) void {
 
     const clap = b.dependency("clap", .{});
 
+    const exe_options = b.addOptions();
+    exe_options.addOption(bool, "use_gpa", b.option(bool, "use_gpa", "Use GeneralPurposeAllocator (good for debugging)") orelse (optimize == .Debug));
+
     const exe = b.addExecutable(.{
         .name = "comdirect-spending-calculator",
         // In this case the main source file is merely a path, however, in more
@@ -15,6 +18,7 @@ pub fn build(b: *std.Build) void {
         .optimize = optimize,
     });
 
+    exe.addModule("build_options", exe_options.createModule());
     exe.addModule("util", b.createModule(.{ .source_file = .{ .path = "src/util.zig" } }));
     exe.addModule("clap", clap.module("clap"));
 

@@ -1,7 +1,7 @@
 .{
     .name = "comdirect-spending-calculator",
     .version = "0.0.1",
-    .paths = .{ "." },
+    .paths = .{""},
 
     .dependencies = .{
         .clap = .{
