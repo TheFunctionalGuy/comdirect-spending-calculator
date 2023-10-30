@@ -2,10 +2,12 @@ const std = @import("std");
 const build_options = @import("build_options");
 const util = @import("util");
 const clap = @import("clap");
+
 const mem = std.mem;
 
 const Filters = @import("Filters.zig");
 const Statement = @import("Statement.zig");
+
 const Allocator = mem.Allocator;
 
 // Define clap parameters and parsers

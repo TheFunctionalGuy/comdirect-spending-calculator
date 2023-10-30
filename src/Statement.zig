@@ -1,8 +1,10 @@
 const std = @import("std");
 const util = @import("util");
+
 const mem = std.mem;
 
 const Filters = @import("Filters.zig");
+
 const Allocator = mem.Allocator;
 const EntryArrayList = std.ArrayList(Entry);
 
