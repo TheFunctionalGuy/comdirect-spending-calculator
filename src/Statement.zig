@@ -11,9 +11,20 @@ const EntryArrayList = std.ArrayList(Entry);
 const Entry = struct {
     value: i64,
     description: []const u8,
+    date: []const u8,
+
+    pub fn format(self: Entry, comptime fmt: []const u8, options: std.fmt.FormatOptions, writer: anytype) !void {
+        if (fmt.len != 0) {
+            std.fmt.invalidFmtError(fmt, self);
+        }
+        _ = options;
+
+        try writer.print("{s:<10} {d:>11.02}  [{s}]", .{ self.date, @as(f64, @floatFromInt(self.value)) / 100.0, self.description });
+    }
 };
 
 allocator: Allocator,
+// TODO: Benchmark against MultiArrayList
 entries: EntryArrayList,
 
 const Self = @This();
@@ -37,7 +48,14 @@ pub fn init(allocator: Allocator, path: []const u8) !Self {
         }
 
         var tokens = mem.tokenizeScalar(u8, line, ';');
-        util.dropScalar(&tokens, 3);
+
+        util.dropScalar(&tokens, 1);
+
+        const date_token = tokens.next().?;
+        const date = try allocator.alloc(u8, date_token.len - 2);
+        @memcpy(date, date_token[1 .. date_token.len - 1]);
+
+        util.dropScalar(&tokens, 1);
 
         const description_token = tokens.next().?;
         const description = try allocator.alloc(u8, description_token.len - 2);
@@ -58,6 +76,7 @@ pub fn init(allocator: Allocator, path: []const u8) !Self {
         try entries.append(.{
             .value = value,
             .description = description,
+            .date = date,
         });
     }
 
@@ -68,13 +87,14 @@ pub fn init(allocator: Allocator, path: []const u8) !Self {
 }
 
 pub fn deinit(self: Self) void {
-    for (self.entries.items) |item| {
-        self.allocator.free(item.description);
+    for (self.entries.items) |entry| {
+        self.allocator.free(entry.date);
+        self.allocator.free(entry.description);
     }
     self.entries.deinit();
 }
 
-pub fn getFilteredSum(self: Self, filters: Filters) i64 {
+pub fn getFilteredSum(self: Self, filters: Filters, verbose: bool) i64 {
     var sum: i64 = 0.0;
 
     for (self.entries.items) |entry| {
@@ -98,6 +118,10 @@ pub fn getFilteredSum(self: Self, filters: Filters) i64 {
 
         if (selected) {
             sum += entry.value;
+
+            if (verbose) {
+                std.debug.print("{}\n", .{entry});
+            }
         }
     }
 

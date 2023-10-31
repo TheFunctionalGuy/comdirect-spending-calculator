@@ -12,9 +12,10 @@ const Allocator = mem.Allocator;
 
 // Define clap parameters and parsers
 const PARAMS = clap.parseParamsComptime(
-    \\-h, --help               Display this help and exit.
+    \\-h, --help               Display this help and exit
     \\-i, --include <FILE>...  Optional filters which specify which values to take into account
     \\-e, --exclude <FILE>...  Optional filters which specify which values NOT to take into account after applying the including filter
+    \\-v, --verbose            Show additional verbose output
     \\<FILE>                   First statement
     \\<FILE>                   Second statement
     \\
@@ -69,6 +70,7 @@ pub fn main() !void {
     // Read filters
     const filters = try Filters.init(allocator, res.args.include, res.args.exclude);
     defer filters.deinit();
+    std.log.debug("\n{}\n", .{filters});
 
     // Read statements
     const first_statement_path = res.positionals[0];
@@ -76,7 +78,7 @@ pub fn main() !void {
     var first_statement = try Statement.init(allocator, first_statement_path);
     defer first_statement.deinit();
 
-    const first_sum = first_statement.getFilteredSum(filters);
+    const first_sum = first_statement.getFilteredSum(filters, res.args.verbose != 0);
 
     const second_sum = blk: {
         if (res.positionals.len > 1) {
@@ -85,7 +87,7 @@ pub fn main() !void {
             var second_statement = try Statement.init(allocator, second_statement_path);
             defer second_statement.deinit();
 
-            const second_sum = second_statement.getFilteredSum(filters);
+            const second_sum = second_statement.getFilteredSum(filters, res.args.verbose != 0);
 
             break :blk second_sum;
         } else {
