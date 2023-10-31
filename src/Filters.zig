@@ -41,24 +41,24 @@ pub fn format(self: Self, comptime fmt: []const u8, options: std.fmt.FormatOptio
 
     // Print including filters
     try writer.writeAll("Including filters");
-    if (self.include.items.len == 0) {
+    if (self.include.len == 0) {
         try writer.writeAll(" are empty!\n");
     } else {
         try writer.writeAll(":\n");
 
-        for (self.include.items) |filter| {
+        for (self.include) |filter| {
             try writer.print("{s}\n", .{filter});
         }
     }
 
     // Print excluding filters
     try writer.writeAll("Excluding filters");
-    if (self.exclude.items.len == 0) {
+    if (self.exclude.len == 0) {
         try writer.writeAll(" are empty!\n");
     } else {
         try writer.writeAll(":\n");
 
-        for (self.exclude.items) |filter| {
+        for (self.exclude) |filter| {
             try writer.print("{s}\n", .{filter});
         }
     }
