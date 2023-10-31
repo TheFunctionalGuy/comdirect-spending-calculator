@@ -4,7 +4,10 @@ pub fn build(b: *std.Build) void {
     const target = b.standardTargetOptions(.{});
     const optimize = b.standardOptimizeOption(.{});
 
-    const clap = b.dependency("clap", .{});
+    const clap = b.dependency("clap", .{
+        .target = target,
+        .optimize = optimize,
+    });
 
     const exe_options = b.addOptions();
     exe_options.addOption(bool, "use_gpa", b.option(bool, "use_gpa", "Use GeneralPurposeAllocator (good for debugging)") orelse (optimize == .Debug));
