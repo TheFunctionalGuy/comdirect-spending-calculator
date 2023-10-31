@@ -30,7 +30,7 @@ pub fn main() !void {
 
     // Warn about debug mode
     if (util.debug_mode) {
-        std.debug.print("Warning: This is a DEBUG build!\n", .{});
+        try stderr.print("Warning: This is a DEBUG build!\n", .{});
     }
 
     // Parse parameters and handle errors
@@ -79,9 +79,9 @@ pub fn main() !void {
     defer first_statement.deinit();
 
     if (res.args.verbose != 0) {
-        std.debug.print("{s}:\n", .{first_statement_path});
+        try stdout.print("{s}:\n", .{first_statement_path});
     }
-    const first_sum = first_statement.getFilteredSum(filters, res.args.verbose != 0);
+    const first_sum = try first_statement.getFilteredSum(filters, res.args.verbose != 0);
 
     const second_sum = blk: {
         if (res.positionals.len > 1) {
@@ -91,9 +91,9 @@ pub fn main() !void {
             defer second_statement.deinit();
 
             if (res.args.verbose != 0) {
-                std.debug.print("{s}:\n", .{second_statement_path});
+                try stdout.print("{s}:\n", .{second_statement_path});
             }
-            const second_sum = second_statement.getFilteredSum(filters, res.args.verbose != 0);
+            const second_sum = try second_statement.getFilteredSum(filters, res.args.verbose != 0);
 
             break :blk second_sum;
         } else {

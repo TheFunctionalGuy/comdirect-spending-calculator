@@ -94,7 +94,7 @@ pub fn deinit(self: Self) void {
     self.entries.deinit();
 }
 
-pub fn getFilteredSum(self: Self, filters: Filters, verbose: bool) i64 {
+pub fn getFilteredSum(self: Self, filters: Filters, verbose: bool) !i64 {
     var sum: i64 = 0.0;
 
     for (self.entries.items) |entry| {
@@ -120,7 +120,9 @@ pub fn getFilteredSum(self: Self, filters: Filters, verbose: bool) i64 {
             sum += entry.value;
 
             if (verbose) {
-                std.debug.print("{}\n", .{entry});
+                const stdout = std.io.getStdOut().writer();
+
+                try stdout.print("{}\n", .{entry});
             }
         }
     }
