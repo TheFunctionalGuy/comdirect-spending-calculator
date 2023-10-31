@@ -78,6 +78,9 @@ pub fn main() !void {
     var first_statement = try Statement.init(allocator, first_statement_path);
     defer first_statement.deinit();
 
+    if (res.args.verbose != 0) {
+        std.debug.print("{s}:\n", .{first_statement_path});
+    }
     const first_sum = first_statement.getFilteredSum(filters, res.args.verbose != 0);
 
     const second_sum = blk: {
@@ -87,6 +90,9 @@ pub fn main() !void {
             var second_statement = try Statement.init(allocator, second_statement_path);
             defer second_statement.deinit();
 
+            if (res.args.verbose != 0) {
+                std.debug.print("{s}:\n", .{second_statement_path});
+            }
             const second_sum = second_statement.getFilteredSum(filters, res.args.verbose != 0);
 
             break :blk second_sum;
@@ -97,11 +103,6 @@ pub fn main() !void {
 
     // Convert cents to euros and extract non-negative cents
     const diff_2: f64 = @as(f64, @floatFromInt(first_sum - second_sum)) / 100.0;
-    // const diff = first_sum - second_sum;
-    // const euros = @divTrunc(diff, 100);
-    // const cents = -1 * @rem(diff, 100);
-
-    // try stdout.print("Diff: {d},{d:0>4} Euro\n", .{ euros, cents });
 
     if (res.positionals.len > 1) {
         try stdout.print("Difference: {d:.02} Euro\n", .{diff_2});
