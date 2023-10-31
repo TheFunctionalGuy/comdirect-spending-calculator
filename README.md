@@ -10,7 +10,7 @@
 <FILE>                   Second statement
 ```
 
-The program expects [statements](#statements) as positional inputs and [filters](#filters) as inputs via flags.
+The program expects [statements](#statements) as positional inputs and [filters](#filters) as inputs via flags.<br>
 Statements are processed entry by entry and filtered respectively by the given including/excluding filters.
 Results are all values of a statement summed up after they have passed both filter types.
 
@@ -47,7 +47,8 @@ Each line specifies either:
 
 ## Installation
 
-Installing `comdirect-spending-calculator` is very easy. You will need [a build of Zig](https://ziglang.org/download/) (`master` or `0.11.0`) to build `comdirect-spending-calculator`.
+Installing `comdirect-spending-calculator` is very easy.
+You will need [a build of Zig](https://ziglang.org/download/) (`master` or `0.11.0`) to build `comdirect-spending-calculator`.
 
 ```bash
 git clone https://github.com/TheFunctionalGuy/comdirect-spending-calculator
