@@ -16,6 +16,7 @@ const PARAMS = clap.parseParamsComptime(
     \\-i, --include <FILE>...  Optional filters which specify which values to take into account
     \\-e, --exclude <FILE>...  Optional filters which specify which values NOT to take into account after applying the including filter
     \\-v, --verbose            Show additional verbose output
+    \\--version                Display version and exit
     \\<FILE>                   First statement
     \\<FILE>                   Second statement
     \\
@@ -44,11 +45,18 @@ pub fn main() !void {
     };
     defer res.deinit();
 
+    // -h, --help
     if (res.args.help != 0) {
         return clap.help(stderr, clap.Help, &PARAMS, .{});
     }
+    // --version
+    if (res.args.version != 0) {
+        try stdout.writeAll(build_options.version_string ++ "\n");
+        return;
+    }
+    // Too few or too much positionals
     if (res.positionals.len < 1 or res.positionals.len > 2) {
-        try stderr.print("Please provide one or two statements!\n", .{});
+        try stderr.writeAll("Please provide one or two statements!\n");
         return clap.help(stderr, clap.Help, &PARAMS, .{});
     }
 

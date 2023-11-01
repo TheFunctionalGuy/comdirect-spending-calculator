@@ -1,8 +1,16 @@
 const std = @import("std");
 
+const csc_version = std.SemanticVersion{ .major = 1, .minor = 0, .patch = 1 };
+
 pub fn build(b: *std.Build) void {
     const target = b.standardTargetOptions(.{});
     const optimize = b.standardOptimizeOption(.{});
+
+    const version_string = b.fmt("{d}.{d}.{d}", .{
+        csc_version.major,
+        csc_version.minor,
+        csc_version.patch,
+    });
 
     // === zig build (install) ===
     {
@@ -13,6 +21,7 @@ pub fn build(b: *std.Build) void {
 
         const exe_options = b.addOptions();
         exe_options.addOption(bool, "use_gpa", b.option(bool, "use_gpa", "Use GeneralPurposeAllocator (good for debugging)") orelse (optimize == .Debug));
+        exe_options.addOption([]const u8, "version_string", version_string);
 
         const exe = b.addExecutable(.{
             .name = "comdirect-spending-calculator",
@@ -82,6 +91,7 @@ pub fn build(b: *std.Build) void {
 
             const exe_options = b.addOptions();
             exe_options.addOption(bool, "use_gpa", false);
+            exe_options.addOption([]const u8, "version_string", version_string);
 
             const artifact_exe = b.addExecutable(.{
                 .name = "comdirect-spending-calculator",
