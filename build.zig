@@ -1,6 +1,6 @@
 const std = @import("std");
 
-const csc_version = std.SemanticVersion{ .major = 1, .minor = 0, .patch = 1 };
+const csc_version = std.SemanticVersion{ .major = 1, .minor = 0, .patch = 2 };
 
 pub fn build(b: *std.Build) void {
     const target = b.standardTargetOptions(.{});
@@ -109,7 +109,7 @@ pub fn build(b: *std.Build) void {
             const install_artifcat_exe = b.addInstallArtifact(artifact_exe, .{
                 .dest_dir = .{
                     .override = .{
-                        .custom = "release/",
+                        .custom = "release/comdirect-spending-calculator" ++ "-" ++ @tagName(artifact_target.cpu_arch.?) ++ "-" ++ @tagName(artifact_target.os_tag.?),
                     },
                 },
             });

@@ -9,8 +9,8 @@ _build_release:
     zig build release-artifacts
 
 _pack_release:
-    zip zig-out/release/comdirect-spending-calculator-x86_64-windows.zip zig-out/release/comdirect-spending-calculator.exe
-    tar czf zig-out/release/comdirect-spending-calculator-x86_64-linux.tar.gz zig-out/release/comdirect-spending-calculator
+    cd  zig-out/release/comdirect-spending-calculator-x86_64-windows && zip ../comdirect-spending-calculator-x86_64-windows.zip comdirect-spending-calculator.exe
+    tar czvf zig-out/release/comdirect-spending-calculator-x86_64-linux.tar.gz --directory zig-out/release/comdirect-spending-calculator-x86_64-linux .
 
 # Create and pack release artifacts
 release:
