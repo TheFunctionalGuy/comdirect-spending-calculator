@@ -30,7 +30,7 @@ The final result is the _difference_ between both intermediate results.
 
 ### Statements
 
-The input statements need to be exported from a [comdirect](https://www.comdirect.de/) user account and converted to UTF-8 by running `just convert <exported_statement.json>`.
+The input statements need to be exported from a [comdirect](https://www.comdirect.de/) user account and converted to UTF-8 by running `just convert <exported_statement.csv>`.
 
 Information about `just` can be found in the [GitHub repo](https://github.com/casey/just).
 
