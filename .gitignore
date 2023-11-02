@@ -1,7 +1,7 @@
 # Generated folders
-zig-cache/
-zig-out/
+/zig-cache/
+/zig-out/
 
 # Sensitive data
-input/
-filter/
+/input/
+/filter/
