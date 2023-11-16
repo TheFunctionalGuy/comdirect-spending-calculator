@@ -2,6 +2,7 @@ const std = @import("std");
 const util = @import("util");
 
 const mem = std.mem;
+const testing = std.testing;
 
 const Allocator = std.mem.Allocator;
 const StringArrayList = std.ArrayList([]const u8);
@@ -18,6 +19,61 @@ pub fn init(allocator: Allocator, include_paths: []const []const u8, exclude_pat
         .include = try readFilterFromPathAlloc(allocator, include_paths),
         .exclude = try readFilterFromPathAlloc(allocator, exclude_paths),
     };
+}
+
+test "Filters" {
+    const allocator = testing.allocator;
+
+    // General test: comments, values and imports
+    {
+        const include_paths = [_][]const u8{
+            "test/filter/a.txt",
+            "test/filter/b.txt",
+        };
+        const exclude_paths = [_][]const u8{"test/filter/b.txt"};
+
+        const expected_include_filters = [_][]const u8{
+            "a filter",
+            "B filter",
+        };
+        const expected_exclude_filters = [_][]const u8{
+            "B filter",
+        };
+
+        const filters = try Self.init(allocator, &include_paths, &exclude_paths);
+        defer filters.deinit();
+
+        try testing.expect(filters.include.len == 2);
+        try testing.expect(filters.exclude.len == 1);
+
+        for (expected_include_filters, filters.include) |expected, actual| {
+            try testing.expect(std.mem.eql(u8, expected, actual));
+        }
+        for (expected_exclude_filters, filters.exclude) |expected, actual| {
+            try testing.expect(std.mem.eql(u8, expected, actual));
+        }
+    }
+
+    // Test cyclic importing
+    {
+        const include_paths = [_][]const u8{"test/filter/cycle_1.txt"};
+        const exclude_paths = [_][]const u8{};
+
+        const expected_include_filters = [_][]const u8{
+            "cycle_1 filter",
+            "cycle_2 filter",
+        };
+
+        const filters = try Self.init(allocator, &include_paths, &exclude_paths);
+        defer filters.deinit();
+
+        try testing.expect(filters.include.len == 2);
+        try testing.expect(filters.exclude.len == 0);
+
+        for (expected_include_filters, filters.include) |expected, actual| {
+            try testing.expect(std.mem.eql(u8, expected, actual));
+        }
+    }
 }
 
 pub fn deinit(self: Self) void {

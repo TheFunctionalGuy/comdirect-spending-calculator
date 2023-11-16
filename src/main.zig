@@ -122,3 +122,7 @@ pub fn main() !void {
         }
     }
 }
+
+test {
+    _ = @import("Filters.zig");
+}
