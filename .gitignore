@@ -1,6 +1,7 @@
 # Generated folders
 /zig-cache/
 /zig-out/
+/kcov-out/
 
 # Sensitive data
 /input/

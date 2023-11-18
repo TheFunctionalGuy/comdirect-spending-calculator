@@ -21,7 +21,7 @@ pub fn init(allocator: Allocator, include_paths: []const []const u8, exclude_pat
     };
 }
 
-test "Filters" {
+test "Filters init" {
     const allocator = testing.allocator;
 
     // General test: comments, values and imports

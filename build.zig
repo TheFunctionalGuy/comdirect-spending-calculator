@@ -58,6 +58,8 @@ pub fn build(b: *std.Build) void {
 
     // === zig build test ===
     {
+        const test_coverage = b.option(bool, "test_coverage", "Generate test coverage data") orelse false;
+
         // Creates a step for unit testing. This only builds the test executable
         // but does not run it.
         const unit_tests = b.addTest(.{
@@ -69,6 +71,11 @@ pub fn build(b: *std.Build) void {
         unit_tests.addModule("util", b.createModule(.{ .source_file = .{ .path = "src/util.zig" } }));
 
         const run_unit_tests = b.addRunArtifact(unit_tests);
+        if (test_coverage) {
+            const kcov = b.addSystemCommand(&.{ "kcov", "kcov-out", "--include-pattern", b.build_root.path.? });
+            kcov.addArtifactArg(unit_tests);
+            run_unit_tests.step.dependOn(&kcov.step);
+        }
 
         const test_step = b.step("test", "Run unit tests");
         test_step.dependOn(&run_unit_tests.step);
